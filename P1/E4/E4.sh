@@ -1,8 +1,6 @@
-#Crea unscriptque te permita abrir una terminal con unpromptpersonalizado modificandola variablePS1. La personalizacion delpromptse har ́a de forma interactiva mediante un men ́ude opciones. Se recomienda el uso de funciones para organizar el c ́odigo. El men ́u permitir ́a ira ̃nadiendo las diferentes variables que existen para elprompt, tales como:Nombre de usuario.Nombre de host.Ruta completa. ́Ultima parte de la ruta.Hora.Fecha.Adem ́as, tambi ́en deber ́a existir la opci ́on de a ̃nadir una cadena literal. Cada vez que se a ̃nadaun elemento, se mostrar ́a por pantalla el estado actual delpromptque estamos creando. El men ́udebe tener una opci ́on para confirmar y abrirbashcon elpromptpersonalizado y otra para salirsin hacer nada. Cuando cerremos la sesi ́on personalizada debash, se terminar ́a elscripttambi ́eny elpromptpermanecer ́a como estaba antes de ejecutar elscript. Para abrir una instancia de bashmodificando temporalmente la variablePS1, puedes utilizar:
-
 #!/bin/bash
 opcion=1
-while [ $opcion -ne 0 ] 			#hacemos un bucle para el menu
+while [ $opcion -ne 0 ]
 do
 	echo "Seleccione un opcion" 
 	echo "1.Nombre usuario"
@@ -15,8 +13,8 @@ do
 	echo "8.Confimar"
 	echo "0.Salir"
 	read opcion
-	case $opcion in				#un switch de C las 2 ;; son obligatorias
-		1)	export var="\u";;	#con el \u nos da el nombre de usuario y el el resto de comandos hacen los que nos dice el menu
+	case $opcion in			
+		1)	export var="\u";;	
 		2)	export var="\h";;
 		3)	export var="\w";;
 		4)	export var="\W";;
@@ -24,32 +22,7 @@ do
 		6)	export var="\d";;
 		7)	read var;;
 		8)	PROMPT_COMMAND="PS1='$PS1'; unset PROMPT_COMMAND" bash;;
-#comando para hacer el bash
 	esac
-	PS1="$PS1$var"		#concadenamos las variables en PS1 para ir sumandolas
+	PS1="$PS1$var"
 	echo "PROMT ACTUAL: $PS1"
 done
-
-#COMANDOS DEL PS1
-#    \a un caracter ASCII de ring
-#     \d la fecha actual en formato "dia_sem mes día", "dom nov 18"
-#     \e un caracter ASCII de escape
-#     \h el nombre del equipo hasta el primer ., ejemplo linuxtotal de linuxtotal.com.mx
-#     \H el nombre del equipo
-#     \n nueva línea
-#     \r retorno de carro, enter
-#     \s el nombre del shell
-#     \t el tiempo actual en formato de 24 horas HH:MM:SS
-#     \T el tiempo actual en formato de 12 horas HH:MM:SS
-#     \@ el tiempo actual en formaro de 12 horas con am/pm
-#     \u el usuario actual
-#     \v la version de bash
-#     \V el número de release de batch, versión + parche
-#     \w el directorio de trabajo actual, path
-#     \W el nombre del directorio actual
-#     \! el número en el historial del comando
-#     \# el número de comando de este comando
-#     \$ si el usuario es root (UID=0) se indica un '#', un usuario normal '$'
-#     \\ diagonal
-#     \[ inicio de una secuencia de caracteres no imprimibles
-#     \] fin de la secuencia de caracteres no imprimibles

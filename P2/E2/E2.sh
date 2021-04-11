@@ -1,11 +1,8 @@
 #!/bin/bash
-
 echo -e "\n1) Mostrar los usuarios que tengan un intM-CM-)rprete de comandos vM-CM-!lido asignado\n"
 grep -w 'bash\|sh' /etc/passwd
-
 echo -e "\n2) Mostrar los usuarios que tengan un home vM-CM-!lido asignado\n"
 grep -v nonexistent /etc/passwd
-
 echo -e "\n3) Mostrar los usuarios y el nombre de su grupo en dos columnas\n"
 echo "Usuario                              Grupo"
 echo "=========================================="
