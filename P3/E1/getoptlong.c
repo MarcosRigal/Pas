@@ -25,10 +25,12 @@ int main(int argc, char **argv) {
     /* Estructura a utilizar por getoptlong */
     static struct option long_options[] = {/* Opciones que no van a actuar sobre un flag */
     //  {<nombre largo>, <recibe/no recibe argumento>, NULL, <nombre corto>}
+        {"hide", no_argument, NULL, 'h'},
         {"add", no_argument, NULL, 'a'},
         {"block", no_argument, NULL, 'b'},
         {"delete", required_argument, NULL, 'd'},
         {"create", required_argument, NULL, 'c'},
+        {"list", required_argument, NULL, 'l'},
         {"file", required_argument, NULL, 'f'},
         /* Necesario para indicar el final de las opciones */
         {0, 0, 0, 0}
@@ -36,16 +38,24 @@ int main(int argc, char **argv) {
 
     /* Estas variables servirán para almacenar el resultado de procesar la línea
      * de comandos */
+    bool hflag = false;
     bool aflag = false;
     bool bflag = false;
     char *cvalue = NULL;
     char *dvalue = NULL;
+    char *lvalue = NULL;
     char *fvalue = NULL;
 
     /* Deshabilitar la impresión de errores por defecto */
     /* opterr=0; */
     while ( (c= getopt_long(argc, argv, "abd:c:f:", long_options, NULL)) != -1) {
         switch (c) {
+       
+        case 'h':
+            // printf("Opción -a\n");
+            hflag = true;
+            break;
+       
         case 'a':
             // printf("Opción -a\n");
             aflag = true;
@@ -64,6 +74,11 @@ int main(int argc, char **argv) {
         case 'c':
             // printf("Opción -c con valor '%s'\n", optarg);
             cvalue = optarg;
+            break;
+
+        case 'l':
+            // printf("Opción -f con valor '%s'\n", optarg);
+            lvalue = optarg;
             break;
 
         case 'f':
@@ -95,7 +110,7 @@ int main(int argc, char **argv) {
             printf("%s ", argv[optind++]);
         putchar('\n');
     }
-    printf("aflag = %d, bflag = %d, cvalue = %s, dvalue = %s, fvalue = %s\n", aflag, bflag, cvalue, dvalue, fvalue);
+    printf("hflag = %d, aflag = %d, bflag = %d, cvalue = %s, dvalue = %s, lvalue = %s, fvalue = %s\n", hflag, aflag, bflag, cvalue, dvalue, lvalue, fvalue);
 
     exit(0);
 }

@@ -23,7 +23,9 @@ http://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
 #include <stdbool.h>
 
 int main(int argc, char **argv) {
+    bool hflag = false;
     bool aflag = false;
+    char *dvalue = NULL;
     bool bflag = false;
     char *cvalue = NULL;
     int index;
@@ -53,7 +55,7 @@ int main(int argc, char **argv) {
      de argumentos de opciones ("-"). Sino, devuelve el caracter de opción
      encontrado para caracteres validos o devuelve ? si el caracter no es valido
      segun la cadena especificada.*/
-    while ((c = getopt(argc, argv, "abc:")) != -1) {
+    while ((c = getopt(argc, argv, "had:bc:")) != -1) {
         // Podemos observar qué pasa con las variables externas que va
         // gestionando
         //   getopt() durante las sucesivas llamadas.
@@ -64,9 +66,19 @@ int main(int argc, char **argv) {
         //   (?) o INCOMPLETA
         //             respecto a las opciones indicadas.
         switch (c) {
+
+        case 'h':
+            hflag = true;
+            break;
+
         case 'a':
             aflag = true; // Bandera que indica que la opción -a se ha pasado por
                        // linea de argumentos
+            break;
+
+        case 'd':
+            dvalue = optarg; // En optarg se guarda el valor de argumento
+                             // obligatorio que requiere c
             break;
 
         case 'b':
@@ -124,7 +136,7 @@ int main(int argc, char **argv) {
         cvalue = "ValorPorDefecto";
 
     // Para visualizar que opciones se han activado y sus argumentos
-    printf("aflag = %d, bflag = %d, cvalue = %s\n", aflag, bflag, cvalue);
+    printf("hflag = %d, aflag = %d, dvalue = %s , bflag = %d, cvalue = %s\n", hflag, aflag, dvalue, bflag, cvalue);
 
     return 0;
 }
