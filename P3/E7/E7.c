@@ -46,7 +46,10 @@ int main()
 	// Para controlar los valores devueltos por las funciones (control de errores)
 	int resultado;
 	// Lo que vamos a leer y escribir de la tubería
-	int numeroAleatorio;
+	float a = 5.3;
+	float numeroAleatorio1;
+	float numeroAleatorio2;
+	float sumaAleatorios;
 	// Descriptores de los dos extremos de la tubería
 	int fileDes[2];
 	// Iterador
@@ -71,19 +74,17 @@ int main()
 			
 			close(fileDes[1]);
 	
-			for(i=0; i<5; i++)
+			//Recibimos un mensaje a través de la cola
+			resultado = read( fileDes[0], &sumaAleatorios, sizeof(int));
+			
+			if(resultado != sizeof(int))
 			{
-				//Recibimos un mensaje a través de la cola
-				resultado = read( fileDes[0], &numeroAleatorio, sizeof(int));
-				
-				if(resultado != sizeof(int))
-				{
-					printf("\n[HIJO]: ERROR al leer de la tubería...\n");
-					exit(EXIT_FAILURE);
-				}
-				// Imprimimos el campo que viene en la tubería
-				printf("[HIJO]: Leo el número aleatorio %d de la tubería.\n", numeroAleatorio);
-			}		
+				printf("\n[HIJO]: ERROR al leer de la tubería...\n");
+				exit(EXIT_FAILURE);
+			}
+			// Imprimimos el campo que viene en la tubería
+			printf("[HIJO]: El resultado de la suma leido de la tubería es: %f.\n", sumaAleatorios);
+					
 			// Cerrar el extremo que he usado
 			printf("[HIJO]: Tubería cerrada ...\n");
 			close(fileDes[0]);
@@ -95,23 +96,24 @@ int main()
 			close(fileDes[0]);
 			
 			srand(time(NULL)); // Semilla de los números aleatorios establecida a la hora actual
+				
+			// Rellenamos los campos del mensaje que vamos a enviar
+			numeroAleatorio1 =  (((float)rand()/(float)(RAND_MAX)) * a); //Número aleatorio entre 0 y 4999
+			numeroAleatorio2 =  (((float)rand()/(float)(RAND_MAX)) * a);
+
+			printf("[PADRE]: Escribo el resultado de la suma de los números aleatorios %f y %f en la tubería...\n", numeroAleatorio1, numeroAleatorio2);
 			
-			for(i=0; i<5; i++)
-			{			
-				// Rellenamos los campos del mensaje que vamos a enviar
-				numeroAleatorio = rand()%5000; //Número aleatorio entre 0 y 4999
-				
-				printf("[PADRE]: Escribo el número aleatorio %d en la tubería...\n", numeroAleatorio);
-				
-				// Mandamos el mensaje
-				resultado = write( fileDes[1], &numeroAleatorio, sizeof(int));
-				
-				if(resultado != sizeof(int))
-				{
-					printf("\n[PADRE]: ERROR al escribir en la tubería...\n");
-					exit(EXIT_FAILURE);
-				}
+			sumaAleatorios = numeroAleatorio1 + numeroAleatorio2;
+
+			// Mandamos el mensaje
+			resultado = write( fileDes[1], &sumaAleatorios, sizeof(int));
+			
+			if(resultado != sizeof(int))
+			{
+				printf("\n[PADRE]: ERROR al escribir en la tubería...\n");
+				exit(EXIT_FAILURE);
 			}
+			
 			
 			// Cerrar el extremo que he usado
 			close(fileDes[1]);
