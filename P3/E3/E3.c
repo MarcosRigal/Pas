@@ -123,6 +123,7 @@ int main(int argc, char **argv)
         
         printUser(pw);
         printGroup(gr);
+        exit(0);
     }
 
     else
@@ -292,7 +293,6 @@ int main(int argc, char **argv)
                 groupmembers = strtok(NULL,":");
                 //Se imprime el campo de la estructura que nos interesa
                 printf("Nombre del grupo principal: %s\n", groupname);
-                printf("Contraseña: %s\n", password);
                 printf("GID: %s\n", groupid);
                 printf("Miembros secundarios: %s\n", groupmembers);
                 printf("-----------------------------------------\n");
