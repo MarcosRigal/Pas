@@ -9,7 +9,43 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
-int main(int argc, char **argv) {
+void printUser(struct passwd *pw)
+{
+    //Aqui ya se dispone de la estructura que contiene informacion del usuario
+    printf("\nUsuario:\n");
+    printf("-----------------------------------------\n");
+    printf("Nombre: %s\n", strtok(pw->pw_gecos, ",")); //No es lo mismo el nombre de usuario asociado a un login que el propio login
+    printf("Login: %s\n", pw->pw_name);
+    printf("Password: %s\n", pw->pw_passwd);
+    printf("UID: %d\n", pw->pw_uid);
+    printf("Home: %s\n", pw->pw_dir);
+    printf("Shell: %s\n", pw->pw_shell);
+    printf("Número de grupo principal: %d\n", pw->pw_gid);
+}
+
+void printGroup(struct group *gr)
+{
+    printf("\nGrupo:\n");
+    printf("-----------------------------------------\n");
+    printf("Nombre del grupo principal: %s\n", gr->gr_name);
+    printf("GID: %d\n", gr->gr_gid);
+    printf("Miembros secundarios: %s\n", *gr->gr_mem);   
+}
+
+void printHelp()
+{
+    printf("Uso del programa: ejercicio1 [opciones]\n");
+    printf("Opciones:\n");
+    printf("-h, --help Imprimir esta ayuda:\n");
+    printf("-u, --user (<nombre>|<uid>) Información sobre el usuario\n");
+    printf("-a, --active Información sobre el usuario activo actual\n");
+    printf("-m, --maingroup Además de info de usuario, imprimir la info de su grupo principal\n");
+    printf("-g, --group (<nombre>|<gid>) Información sobre el grupo\n");
+    printf("-s, --allgroups Muestra info de todos los grupos del sistema\n");   
+}
+
+int main(int argc, char **argv)
+{
     int c;
     opterr = 0;
 
@@ -70,28 +106,35 @@ int main(int argc, char **argv) {
         }
     }
 
-    // Imprimir el resto de argumentos de la línea de comandos que no son opciones con "-"
-    if (optind < argc) {
-        printf("Argumentos del argv que no son opciones: ");
-        while (optind < argc)
-            printf("%s ", argv[optind++]);
-        putchar('\n');
+    if (argc == 1)
+    {
+        if ((lgn = getenv("USER")) == NULL || (pw = getpwnam(lgn)) == NULL) 
+        {
+            fprintf(stderr, "Fallo al obtener información de usuario.\n");
+            exit(-1);
+        }
+
+        if ((gr = getgrgid(pw->pw_gid)) == NULL) 
+        {
+            fprintf(stderr, "Fallo al obtener información de grupo.\n");
+            exit(-1);
+        }
+        
+        
+        printUser(pw);
+        printGroup(gr);
     }
 
-    if (hflag)
-    {
-        printf("Uso del programa: ejercicio1 [opciones]\n");
-        printf("Opciones:\n");
-        printf("-h, --help Imprimir esta ayuda:\n");
-        printf("-u, --user (<nombre>|<uid>) Información sobre el usuario\n");
-        printf("-a, --active Información sobre el usuario activo actual\n");
-        printf("-m, --maingroup Además de info de usuario, imprimir la info de su grupo principal\n");
-        printf("-g, --group (<nombre>|<gid>) Información sobre el grupo\n");
-        printf("-s, --allgroups Muestra info de todos los grupos del sistema\n");
-    }
     else
     {
-        if (uvalue != NULL)
+        if (hflag)
+        {
+            printHelp();
+            
+            exit (0);
+        }
+
+        else if ((uvalue != NULL) && (gvalue == NULL) && (!aflag) && (!mflag) && (!sflag) && (!hflag))
         {
             if (isdigit(*uvalue))
             {
@@ -100,7 +143,7 @@ int main(int argc, char **argv) {
                 if ((pw = getpwuid(uid)) == NULL) //DEVUELVE LA ESTRUCTURA TRAS RECIBIR lgn COMO PARÁMETRO
                 {
                     fprintf(stderr, "Fallo al obtener información de usuario.\n");
-                    exit(1);
+                    exit(-1);
                 }
             }
 
@@ -111,110 +154,87 @@ int main(int argc, char **argv) {
                 if ((pw = getpwnam(lgn)) == NULL) //DEVUELVE LA ESTRUCTURA TRAS RECIBIR lgn COMO PARÁMETRO
                 {
                     fprintf(stderr, "Fallo al obtener información de usuario.\n");
-                    exit(1);
+                    exit(-1);
                 }
             }
             
+            printUser(pw);
             
-            if (mflag)
+            exit (0);
+        }
+        
+        else if ((uvalue != NULL) && (gvalue == NULL) && (!aflag) && (mflag) && (!sflag) && (!hflag))
+        {
+            if (isdigit(*uvalue))
             {
-                //Aqui ya se dispone de la estructura que contiene informacion del usuario
-                printf("Usuario:\n");
-                printf("Nombre: %s\n", strtok(pw->pw_gecos, ",")); //No es lo mismo el nombre de usuario asociado a un login que el propio login
-                printf("Login: %s\n", pw->pw_name);
-                printf("Password: %s\n", pw->pw_passwd);
-                printf("UID: %d\n", pw->pw_uid);
-                printf("Home: %s\n", pw->pw_dir);
-                printf("Shell: %s\n", pw->pw_shell);
-                printf("Número de grupo principal: %d\n", pw->pw_gid);
+                uid = atoi(uvalue);
 
-                // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuario
-                gr = getgrgid(pw->pw_gid);
-
-                //Se imprime el campo de la estructura que nos interesa
-                printf("Grupo:\n");
-                printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                printf("GID: %d\n", gr->gr_gid);
-                printf("Miembros secundarios: %s\n", *gr->gr_mem);
-                exit(0);
+                if ((pw = getpwuid(uid)) == NULL) //DEVUELVE LA ESTRUCTURA TRAS RECIBIR lgn COMO PARÁMETRO
+                {
+                    fprintf(stderr, "Fallo al obtener información de usuario.\n");
+                    exit(-1);
+                }
             }
 
             else
             {
-                //Aqui ya se dispone de la estructura que contiene informacion del usuario
-                printf("Usuario:\n");
-                printf("Nombre: %s\n", strtok(pw->pw_gecos, ",")); //No es lo mismo el nombre de usuario asociado a un login que el propio login
-                printf("Login: %s\n", pw->pw_name);
-                printf("Password: %s\n", pw->pw_passwd);
-                printf("UID: %d\n", pw->pw_uid);
-                printf("Home: %s\n", pw->pw_dir);
-                printf("Shell: %s\n", pw->pw_shell);
-                printf("Número de grupo principal: %d\n", pw->pw_gid);
+                lgn = uvalue;
 
-                // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuario
-                gr = getgrgid(pw->pw_gid);
-
-                //Se imprime el campo de la estructura que nos interesa
-                printf("Nombre del grupo principal: %s\n", gr->gr_name);
-
-                exit(0);
+                if ((pw = getpwnam(lgn)) == NULL) //DEVUELVE LA ESTRUCTURA TRAS RECIBIR lgn COMO PARÁMETRO
+                {
+                    fprintf(stderr, "Fallo al obtener información de usuario.\n");
+                    exit(-1);
+                }
             }
+            
+            printUser(pw);
+            
+            if ((gr = getgrgid(pw->pw_gid)) == NULL) 
+            {
+                fprintf(stderr, "Fallo al obtener información de grupo.\n");
+                exit(-1);
+            }
+            
+            printGroup(gr);
+            
+            exit(0);
         }
 
-        else if (aflag)
+        else if ((uvalue == NULL) && (gvalue == NULL) && (aflag) && (!mflag) && (!sflag) && (!hflag))
         {
             if ((lgn = getenv("USER")) == NULL || (pw = getpwnam(lgn)) == NULL) 
             {
                 fprintf(stderr, "Fallo al obtener información de usuario.\n");
-                exit(1);
+                exit(-1);
             }
 
-            if (mflag)
-            {
-                //Aqui ya se dispone de la estructura que contiene informacion del usuario
-                printf("Usuario:\n");
-                printf("Nombre: %s\n", strtok(pw->pw_gecos, ",")); //No es lo mismo el nombre de usuario asociado a un login que el propio login
-                printf("Login: %s\n", pw->pw_name);
-                printf("Password: %s\n", pw->pw_passwd);
-                printf("UID: %d\n", pw->pw_uid);
-                printf("Home: %s\n", pw->pw_dir);
-                printf("Shell: %s\n", pw->pw_shell);
-                printf("Número de grupo principal: %d\n", pw->pw_gid);
+            printUser(pw);
 
-                // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuario
-                gr = getgrgid(pw->pw_gid);
-
-                //Se imprime el campo de la estructura que nos interesa
-                printf("Grupo:\n");
-                printf("Nombre del grupo principal: %s\n", gr->gr_name);
-                printf("GID: %d\n", gr->gr_gid);
-                printf("Miembros secundarios: %s\n", *gr->gr_mem);
-                exit(0);
-            }
-
-            else
-            {
-                //Aqui ya se dispone de la estructura que contiene informacion del usuario
-                printf("Usuario:\n");
-                printf("Nombre: %s\n", strtok(pw->pw_gecos, ",")); //No es lo mismo el nombre de usuario asociado a un login que el propio login
-                printf("Login: %s\n", pw->pw_name);
-                printf("Password: %s\n", pw->pw_passwd);
-                printf("UID: %d\n", pw->pw_uid);
-                printf("Home: %s\n", pw->pw_dir);
-                printf("Shell: %s\n", pw->pw_shell);
-                printf("Número de grupo principal: %d\n", pw->pw_gid);
-
-                // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuario
-                gr = getgrgid(pw->pw_gid);
-
-                //Se imprime el campo de la estructura que nos interesa
-                printf("Nombre del grupo principal: %s\n", gr->gr_name);
-
-                exit(0);
-            }
+            exit(0);
         }
-        
-        else if (gvalue != NULL)
+
+        else if ((uvalue == NULL) && (gvalue == NULL) && (aflag) && (mflag) && (!sflag) && (!hflag))
+        {
+            if ((lgn = getenv("USER")) == NULL || (pw = getpwnam(lgn)) == NULL) 
+            {
+                fprintf(stderr, "Fallo al obtener información de usuario.\n");
+                exit(-1);
+            }
+
+            printUser(pw);
+            
+            if ((gr = getgrgid(pw->pw_gid)) == NULL) 
+            {
+                fprintf(stderr, "Fallo al obtener información de grupo.\n");
+                exit(-1);
+            }
+            
+            printGroup(gr);
+
+            exit(0);
+        }
+
+        else if ((uvalue == NULL) && (gvalue != NULL) && (!aflag) && (!mflag) && (!sflag) && (!hflag))
         {
             if (isdigit(*gvalue))
             {
@@ -223,7 +243,7 @@ int main(int argc, char **argv) {
                 if ((gr = getgrgid(gid)) == NULL) //DEVUELVE LA ESTRUCTURA TRAS RECIBIR lgn COMO PARÁMETRO
                 {
                     fprintf(stderr, "Fallo al obtener información de usuario.\n");
-                    exit(1);
+                    exit(-1);
                 }
             }
 
@@ -234,21 +254,18 @@ int main(int argc, char **argv) {
                 if ((gr = getgrnam(gname)) == NULL) //DEVUELVE LA ESTRUCTURA TRAS RECIBIR lgn COMO PARÁMETRO
                 {
                     fprintf(stderr, "Fallo al obtener información de usuario.\n");
-                    exit(1);
+                    exit(-1);
                 }
             }
-            
-            //Se imprime el campo de la estructura que nos interesa
-            printf("Grupo:\n");
-            printf("Nombre del grupo principal: %s\n", gr->gr_name);
-            printf("GID: %d\n", gr->gr_gid);
-            printf("Miembros secundarios: %s\n", *gr->gr_mem);
+
+            printGroup(gr);
+
             exit(0);
         }
         
-        else if (sflag)
+        else if ((uvalue == NULL) && (gvalue == NULL) && (!aflag) && (!mflag) && (sflag) && (!hflag))
         {
-            int num;
+           int num;
             FILE *f;
 
             // use appropriate location if you are using MacOS or Linux
@@ -257,56 +274,45 @@ int main(int argc, char **argv) {
             if(f == NULL)
             {
                printf("Error al abrir el fichero /etc/group");   
-               exit(1);             
+               exit(-1);             
             }
             char buffer[256];
             char *groupname;
+            char *password;
             char *groupid;
             char *groupmembers;
             printf("Grupo:\n");
+            printf("-----------------------------------------\n");
             while (fgets(buffer, 256, f) != NULL)
             {
                 groupname = strtok(buffer,":");
+                password = strtok(NULL,":");
                 groupid = strtok(NULL,":");
                 strtok(NULL,":");
                 groupmembers = strtok(NULL,":");
                 //Se imprime el campo de la estructura que nos interesa
                 printf("Nombre del grupo principal: %s\n", groupname);
+                printf("Contraseña: %s\n", password);
                 printf("GID: %s\n", groupid);
-                printf("Miembros secundarios: %s", groupmembers);
+                printf("Miembros secundarios: %s\n", groupmembers);
+                printf("-----------------------------------------\n");
             }
             
+            exit (0);
         }
         else
         {
-            if ((lgn = getenv("USER")) == NULL || (pw = getpwnam(lgn)) == NULL) 
-            {
-                fprintf(stderr, "Fallo al obtener información de usuario.\n");
-                exit(1);
-            }
-
-            //Aqui ya se dispone de la estructura que contiene informacion del usuario
-            printf("Usuario:\n");
-            printf("Nombre: %s\n", strtok(pw->pw_gecos, ",")); //No es lo mismo el nombre de usuario asociado a un login que el propio login
-            printf("Login: %s\n", pw->pw_name);
-            printf("Password: %s\n", pw->pw_passwd);
-            printf("UID: %d\n", pw->pw_uid);
-            printf("Home: %s\n", pw->pw_dir);
-            printf("Shell: %s\n", pw->pw_shell);
-            printf("Número de grupo principal: %d\n", pw->pw_gid);
-
-            // Obtenemos la estructura de información del grupo a través del número de grupo al que pertenece el usuario
-            gr = getgrgid(pw->pw_gid);
-            
-            printf("Grupo:\n");
-            //Se imprime el campo de la estructura que nos interesa
-            printf("Nombre del grupo principal: %s\n", gr->gr_name);
-            printf("GID: %d\n", gr->gr_gid);
-            printf("Miembros secundarios: %s\n", *gr->gr_mem);
-            exit(0);
-        }
-        
-    }   
-
+            printf("Porfavor, llame al programa de forma adecuada. Las únicas combinaciones posibles son:\n");
+            printf("--help, junto con cualquiera (se ignoran las demás)\n");            
+            printf("vacío\n");
+            printf("--user <usuario>\n");
+            printf("--user <usuario> --maingroup\n");
+            printf("--active\n");
+            printf("--active --maingroup\n");
+            printf("--group <grupo>\n");
+            printf("--allgroups\n");
+            exit (-1);            
+        }   
+    }
     exit(0);
 }
