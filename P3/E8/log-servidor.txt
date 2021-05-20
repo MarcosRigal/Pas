@@ -1,0 +1,7 @@
+[2021-05-20, 22:49:26] ==> Número de caracteres recibidos: 4
+[2021-05-20, 22:49:33] ==> Número de caracteres recibidos: 15
+[2021-05-20, 22:49:36] ==> Número de caracteres recibidos: 4
+[2021-05-20, 22:53:50] ==> Número de caracteres recibidos: 4
+[2021-05-20, 22:53:53] ==> Número de caracteres recibidos: 5
+[2021-05-20, 22:53:55] ==> Número de caracteres recibidos: 3
+[2021-05-20, 22:53:57] ==> Número de caracteres recibidos: 4
