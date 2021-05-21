@@ -1,0 +1,11 @@
+[2021-05-21, 10:43:54] ==> Error al abrir la cola del servidor
+[2021-05-21, 10:44:08] ==> hola
+[2021-05-21, 10:44:09] ==> hola
+[2021-05-21, 10:44:13] ==> me llamo marcos
+[2021-05-21, 10:44:14] ==> adios
+[2021-05-21, 10:44:19] ==> exit
+[2021-05-21, 10:44:27] ==> Capturada la señal con identificador: 2
+[2021-05-21, 10:44:27] ==> exit
+[2021-05-21, 10:45:28] ==> Capturada la señal con identificador: 2
+[2021-05-21, 10:45:28] ==> exit
+

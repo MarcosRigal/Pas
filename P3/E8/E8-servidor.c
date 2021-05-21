@@ -14,62 +14,22 @@ Lo hace mientras que el valor de esa cadena sea distinto a la palabra exit.
 #include <mqueue.h>
 #include <time.h>
 #include <errno.h>
-#include <signal.h>
 #include "E8-common.h"
 //Prototipo de funcionn
 void funcionLog(char *);
 // Apuntador al fichero de log.  No se usa en este ejemplo, pero le servira en ejercicio resumen
 FILE *fLog = NULL;
 
-mqd_t mq_server;
-mqd_t mq_client;
-// Buffer para intercambiar mensajes
-char writeBuffer[MAX_SIZE];
-char readBuffer[MAX_SIZE];
- // Nombre para la cola
-char serverQueue[100];
-char clientQueue[100];
-
-void sigint(int signal)
-{
-	sprintf(writeBuffer, "Capturada la señal SIGINT con número: %d", signal);
-	funcionLog(writeBuffer);
-	sprintf(writeBuffer, "exit");
-	if(mq_send(mq_server, writeBuffer, MAX_SIZE, 0) != 0)
-	{
-		perror("Error al enviar el mensaje");
-		exit(-1);
-	}
-	funcionLog(writeBuffer);
-	printf("\n");
-	exit(0);
-}
-
-void sigterm(int signal)
-{
-	sprintf(writeBuffer, "Capturada la señal SIGTERM con número: %d", signal);
-	funcionLog(writeBuffer);
-	sprintf(writeBuffer, "exit");
-	if(mq_send(mq_server, writeBuffer, MAX_SIZE, 0) != 0)
-	{
-		perror("Error al enviar el mensaje");
-		exit(-1);
-	}
-	funcionLog(writeBuffer);
-	printf("\n");
-	exit(0);
-}
-
-
 int main(int argc, char **argv)
 {
-
-	if (signal(SIGINT, sigint) == SIG_ERR)
-      printf("No puedo asociar la señal SIGINT al manejador!\n");
-
-   if (signal(SIGTERM, sigterm) == SIG_ERR)
-   	printf("No puedo asociar la señal SIGTERM al manejador!\n");
-
+	mqd_t mq_server;
+	mqd_t mq_client;
+	// Buffer para intercambiar mensajes
+	char writeBuffer[MAX_SIZE];
+	char readBuffer[MAX_SIZE];
+	 // Nombre para la cola
+	char serverQueue[100];
+	char clientQueue[100];
 	// Cola del servidor
 	// Atributos de la cola
 	struct mq_attr attr;
@@ -96,12 +56,14 @@ int main(int argc, char **argv)
 	if(mq_server == (mqd_t)-1 )
 	{
    	perror("Error al abrir la cola del servidor");
+   	funcionLog("Error al abrir la cola del servidor");
       exit(-1);
 	}
 
 	if(mq_client == (mqd_t)-1 )
 	{
    	perror("Error al abrir la cola del cliente");
+   	funcionLog("Error al abrir la cola del cliente");
       exit(-1);
 	}
 
@@ -119,6 +81,7 @@ int main(int argc, char **argv)
 		if(bytes_read < 0)
 		{
 			perror("Error al recibir el mensaje");
+			funcionLog("Error al recibir el mensaje");
 			exit(-1);
 		}
 		// Cerrar la cadena
@@ -135,6 +98,7 @@ int main(int argc, char **argv)
 			if(mq_send(mq_client, writeBuffer, MAX_SIZE, 0) != 0)
 			{
 				perror("Error al enviar el mensaje");
+				funcionLog("Error al enviar el mensaje");
 				exit(-1);
 			}
 			funcionLog(writeBuffer);
@@ -147,12 +111,14 @@ int main(int argc, char **argv)
 	if(mq_close(mq_server) == (mqd_t)-1)
 	{
 		perror("Error al cerrar la cola del servidor");
+		funcionLog("Error al cerrar la cola del servidor");
 		exit(-1);
 	}
 	
 	if(mq_close(mq_client) == (mqd_t)-1)
 	{
 		perror("Error al cerrar la cola del cliente");
+		funcionLog("Error al cerrar la cola del cliente");
 		exit(-1);
 	}
 
@@ -160,6 +126,7 @@ int main(int argc, char **argv)
 	if(mq_unlink(serverQueue) == (mqd_t)-1)
 	{
 		perror("Error al eliminar la cola del servidor");
+		funcionLog("Error al eliminar la cola del servidor");
 		exit(-1);
 	}
 	
@@ -168,6 +135,7 @@ int main(int argc, char **argv)
 	if(mq_unlink(clientQueue) == (mqd_t)-1)
 	{
 		perror("Error al eliminar la cola del cliente");
+		funcionLog("Error al eliminar la cola del cliente");
 		exit(-1);
 	}
 

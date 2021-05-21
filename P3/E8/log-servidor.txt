@@ -1,0 +1,10 @@
+[2021-05-21, 10:44:08] ==> Número de caracteres recibidos: 4
+[2021-05-21, 10:44:09] ==> Número de caracteres recibidos: 4
+[2021-05-21, 10:44:13] ==> Número de caracteres recibidos: 15
+[2021-05-21, 10:44:14] ==> Número de caracteres recibidos: 5
+[2021-05-21, 10:44:19] ==> Número de caracteres recibidos: 4
+[2021-05-21, 10:44:19] ==> exit
+[2021-05-21, 10:44:27] ==> Número de caracteres recibidos: 4
+[2021-05-21, 10:44:27] ==> exit
+[2021-05-21, 10:45:28] ==> Número de caracteres recibidos: 4
+[2021-05-21, 10:45:28] ==> exit
