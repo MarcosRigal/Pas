@@ -15,40 +15,60 @@ recogida por teclado, mientras que el valor de esa cadena sea distinto a la pala
 #include <signal.h>   
 #include "E8-common.h"
 
-void sigint(int signal)
-{
-    printf("Capturé la señal SIGINT y no salgo!\n");
-    return;
-}
-
-void sigterm(int signal)
-{
-    int i;
-    printf("Capturé la señal SIGTERM y voy a salir de manera ordenada\n");
-    for(i=0; i<3; i++)
-    {
-        printf("Hasta luego... cerrando ficheros...\n");
-        sleep(1);
-    }
-    exit(0);
-}
+mqd_t mq_server;
+mqd_t mq_client;
+// Buffer para intercambiar mensajes
+char writeBuffer[MAX_SIZE];
+char readBuffer[MAX_SIZE];
+ // Nombre para la cola
+char serverQueue[100];
+char clientQueue[100];
 
 //Prototipo de funcion
 void funcionLog(char *);
 // Apuntador al fichero de log. No se usa en este ejemplo, pero le servira en ejercicio resumen
 FILE *fLog = NULL;
 
+void sigint(int signal)
+{
+	sprintf(writeBuffer, "Capturada la señal SIGINT con número: %d", signal);
+	funcionLog(writeBuffer);
+	sprintf(writeBuffer, "exit");
+	if(mq_send(mq_server, writeBuffer, MAX_SIZE, 0) != 0)
+	{
+		perror("Error al enviar el mensaje");
+		exit(-1);
+	}
+	funcionLog(writeBuffer);
+	printf("\n");
+	exit(0);
+}
+
+void sigterm(int signal)
+{
+	sprintf(writeBuffer, "Capturada la señal SIGTERM con número: %d", signal);
+	funcionLog(writeBuffer);
+	sprintf(writeBuffer, "exit");
+	if(mq_send(mq_server, writeBuffer, MAX_SIZE, 0) != 0)
+	{
+		perror("Error al enviar el mensaje");
+		exit(-1);
+	}
+	funcionLog(writeBuffer);
+	printf("\n");
+	exit(0);
+}
+
+
 int main(int argc, char **argv)
 {
+	if (signal(SIGINT, sigint) == SIG_ERR)
+      printf("No puedo asociar la señal SIGINT al manejador!\n");
+
+   if (signal(SIGTERM, sigterm) == SIG_ERR)
+   	printf("No puedo asociar la señal SIGTERM al manejador!\n");
+
 	// Cola del servidor
-	mqd_t mq_server;
-	mqd_t mq_client;
-	// Buffer para intercambiar mensajes
-	char writeBuffer[MAX_SIZE];
-	char readBuffer[MAX_SIZE];
-    // Nombre para la cola
-   char serverQueue[100];
-   char clientQueue[100];
 
 	// Abrir la cola del servidor. La cola CLIENT_QUEUE le servira en ejercicio resumen.
 	// No es necesario crearla si se lanza primero el servidor, sino el programa no funciona.

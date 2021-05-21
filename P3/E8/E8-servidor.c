@@ -14,49 +14,72 @@ Lo hace mientras que el valor de esa cadena sea distinto a la palabra exit.
 #include <mqueue.h>
 #include <time.h>
 #include <errno.h>
+#include <signal.h>
 #include "E8-common.h"
-
-void sigint(int signal)
-{
-    printf("Capturé la señal SIGINT y no salgo!\n");
-    return;
-}
-
-void sigterm(int signal)
-{
-    int i;
-    printf("Capturé la señal SIGTERM y voy a salir de manera ordenada\n");
-    for(i=0; i<3; i++)
-    {
-        printf("Hasta luego... cerrando ficheros...\n");
-        sleep(1);
-    }
-    exit(0);
-}
-
 //Prototipo de funcionn
 void funcionLog(char *);
 // Apuntador al fichero de log.  No se usa en este ejemplo, pero le servira en ejercicio resumen
 FILE *fLog = NULL;
 
+mqd_t mq_server;
+mqd_t mq_client;
+// Buffer para intercambiar mensajes
+char writeBuffer[MAX_SIZE];
+char readBuffer[MAX_SIZE];
+ // Nombre para la cola
+char serverQueue[100];
+char clientQueue[100];
+
+void sigint(int signal)
+{
+	sprintf(writeBuffer, "Capturada la señal SIGINT con número: %d", signal);
+	funcionLog(writeBuffer);
+	sprintf(writeBuffer, "exit");
+	if(mq_send(mq_server, writeBuffer, MAX_SIZE, 0) != 0)
+	{
+		perror("Error al enviar el mensaje");
+		exit(-1);
+	}
+	funcionLog(writeBuffer);
+	printf("\n");
+	exit(0);
+}
+
+void sigterm(int signal)
+{
+	sprintf(writeBuffer, "Capturada la señal SIGTERM con número: %d", signal);
+	funcionLog(writeBuffer);
+	sprintf(writeBuffer, "exit");
+	if(mq_send(mq_server, writeBuffer, MAX_SIZE, 0) != 0)
+	{
+		perror("Error al enviar el mensaje");
+		exit(-1);
+	}
+	funcionLog(writeBuffer);
+	printf("\n");
+	exit(0);
+}
+
+
 int main(int argc, char **argv)
 {
+
+	if (signal(SIGINT, sigint) == SIG_ERR)
+      printf("No puedo asociar la señal SIGINT al manejador!\n");
+
+   if (signal(SIGTERM, sigterm) == SIG_ERR)
+   	printf("No puedo asociar la señal SIGTERM al manejador!\n");
+
 	// Cola del servidor
-	mqd_t mq_server;
-	mqd_t mq_client;
 	// Atributos de la cola
 	struct mq_attr attr;
 	// Buffer para intercambiar mensajes
-	char readBuffer[MAX_SIZE];
-	char writeBuffer[MAX_SIZE];
 	// flag que indica cuando hay que parar. Se escribe palabra exit
 	int must_stop = 0;
 	// Inicializar los atributos de la cola
 	attr.mq_maxmsg = 10;        // Maximo número de mensajes
 	attr.mq_msgsize = MAX_SIZE; // Maximo tamaño de un mensaje
     // Nombre para la cola
-    char serverQueue[100];
-    char clientQueue[100];
 
     // Nombre para la cola. Al concatenar el login sera unica en un sistema compartido.
 	sprintf(serverQueue, "%s-%s", SERVER_QUEUE, getenv("USER"));
@@ -117,6 +140,8 @@ int main(int argc, char **argv)
 			funcionLog(writeBuffer);
 
 	} while (!must_stop); 	// Iterar hasta que llegue el código de salida, es decir, la palabra exit
+
+	funcionLog("exit");
 
 	// Cerrar la cola del servidor
 	if(mq_close(mq_server) == (mqd_t)-1)
