@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 			perror("Error al enviar el mensaje");
 			exit(-1);
 		}
-		funcionLog(writeBuffer);
+		funcionLog(strtok(writeBuffer,"\n"));
 
 		// Número de bytes leidos
 		ssize_t bytes_read;
@@ -160,6 +160,7 @@ void funcionLog(char *mensaje)
 {
 	int resultado;
 	char nombreFichero[100];
+	char date[100];
 	char mensajeAEscribir[300];
 	time_t t;
 
@@ -178,10 +179,10 @@ void funcionLog(char *mensaje)
 	// Obtener la hora actual
 	t = time(NULL);
 	struct tm * p = localtime(&t);
-	strftime(mensajeAEscribir, 1000, "[%Y-%m-%d, %H:%M:%S]", p);
+	strftime(date, 1000, "[%Y-%m-%d, %H:%M:%S]", p);
 
 	// Vamos a incluir la hora y el mensaje que nos pasan
-	sprintf(mensajeAEscribir, "%s ==> %s\n", mensajeAEscribir, mensaje);
+	snprintf(mensajeAEscribir, (sizeof(mensajeAEscribir)+6),"%s ==> %s\n", date, mensaje);
 
 	// Escribir finalmente en el fichero
 	resultado = fputs(mensajeAEscribir,fLog);
