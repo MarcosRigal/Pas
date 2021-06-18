@@ -1,4 +1,6 @@
-![PAS](https://www.snydersi.com/wp-content/uploads/2020/03/web-hosting--600x300.jpg)
+<div align="center">
+    <img width="100%" src="https://www.snydersi.com/wp-content/uploads/2020/03/web-hosting--600x300.jpg" alt="PAS">
+</div>
 
 # Instructions:
 The practices are organized as follows:
