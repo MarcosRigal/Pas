@@ -1,5 +1,5 @@
 <div align="center">
-    <img width="100%" src="https://www.snydersi.com/wp-content/uploads/2020/03/web-hosting--600x300.jpg" alt="PAS">
+    <img width="100%" src="https://d3t4nwcgmfrp9x.cloudfront.net/upload/claves-crear-buena-base-datos.jpg" alt="PAS">
 </div>
 
 # Instructions:
